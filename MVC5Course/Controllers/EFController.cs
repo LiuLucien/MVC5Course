@@ -11,7 +11,31 @@ namespace MVC5Course.Controllers
         FabricsEntities db = new FabricsEntities();
 
         // GET: EF
-        public ActionResult Index()
+        public ActionResult Index(bool? ISActive, string Keyword)
+        {
+            //AddProduct();
+            //var datapk = Product.ProductId;
+            //var data = db.Product.Where(s => s.ProductId == datapk).ToList();
+            var data = db.Product.OrderByDescending(s => s.ProductId).AsQueryable();
+
+            if (ISActive.HasValue)
+            {
+                data = data.Where(s => s.Active.HasValue ? s.Active.Value == ISActive : false);
+            }
+            if (!string.IsNullOrEmpty(Keyword))
+            {
+                data = data.Where(s => s.ProductName.Contains(Keyword));
+            }
+
+            //foreach (var item in data)
+            //{
+            //    item.Price = item.Price + 1;
+            //}
+            //SaveChanges();
+            return View(data);
+        }
+
+        private void AddProduct()
         {
             var Product = new Product()
             {
@@ -23,34 +47,7 @@ namespace MVC5Course.Controllers
 
             db.Product.Add(Product);
 
-            try
-            {
-                db.SaveChanges();
-            }
-            catch (DbEntityValidationException EX)
-            {
-                foreach (DbEntityValidationResult item in EX.EntityValidationErrors)
-                {
-                    string entityName = item.Entry.Entity.GetType().Name;
-
-                    foreach (DbValidationError Error in item.ValidationErrors)
-                    {
-                        throw new Exception(entityName + " 驗證類型失敗： " + Error.ErrorMessage);
-                    }
-                }
-                throw;
-            }
-            //var datapk = Product.ProductId;
-
-            //var data = db.Product.Where(s => s.ProductId == datapk).ToList();
-            var data = db.Product.OrderByDescending(s => s.ProductId).Take(5).ToList();
-
-            foreach (var item in data)
-            {
-                item.Price = item.Price + 1;
-            }
-            db.SaveChanges();
-            return View(data);
+            SaveChanges();
         }
 
         public ActionResult Details(int Id)
@@ -70,8 +67,9 @@ namespace MVC5Course.Controllers
 
             if (Data != null)
             {
+                db.OrderLine.RemoveRange(Data.OrderLine);
                 db.Product.Remove(Data);
-                db.SaveChanges();
+                SaveChanges();
             }
             else
             {
@@ -79,6 +77,27 @@ namespace MVC5Course.Controllers
             }
 
             return RedirectToAction("index");
+        }
+
+        private void SaveChanges()
+        {
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbEntityValidationException EX)
+            {
+                foreach (DbEntityValidationResult item in EX.EntityValidationErrors)
+                {
+                    string entityName = item.Entry.Entity.GetType().Name;
+
+                    foreach (DbValidationError Error in item.ValidationErrors)
+                    {
+                        throw new Exception(entityName + " 驗證類型失敗： " + Error.ErrorMessage);
+                    }
+                }
+                throw;
+            }
         }
     }
 }
