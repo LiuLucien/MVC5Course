@@ -3,6 +3,7 @@ using System.Linq;
 using System.Data.Entity.Validation;
 using MVC5Course.Models;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 namespace MVC5Course.Controllers
 {
@@ -34,22 +35,6 @@ namespace MVC5Course.Controllers
             //SaveChanges();
             return View(data);
         }
-
-        private void AddProduct()
-        {
-            var Product = new Product()
-            {
-                ProductName = "BMW",
-                Price = 2,
-                Stock = 1,
-                Active = true
-            };
-
-            db.Product.Add(Product);
-
-            SaveChanges();
-        }
-
         public ActionResult Details(int Id)
         {
             var Data = db.Product.Where(s => s.ProductId == Id).FirstOrDefault();
@@ -77,6 +62,33 @@ namespace MVC5Course.Controllers
             }
 
             return RedirectToAction("index");
+        }
+
+        public ActionResult QueryPlan()
+        {
+            var Data = db.Product.Include(s => s.OrderLine).OrderBy(s => s.ProductId).AsQueryable();
+
+            //var data = db.Database.SqlQuery<Product>
+            //    (@"
+            //        Select * From dbo.Product AS p
+            //        where p.ProductId < @p0",10
+            //    );
+            return View(Data);
+        }
+
+        private void AddProduct()
+        {
+            var Product = new Product()
+            {
+                ProductName = "BMW",
+                Price = 2,
+                Stock = 1,
+                Active = true
+            };
+
+            db.Product.Add(Product);
+
+            SaveChanges();
         }
 
         private void SaveChanges()
