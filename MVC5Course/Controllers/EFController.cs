@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Data.Entity.Validation;
 using MVC5Course.Models;
 using System.Web.Mvc;
@@ -45,7 +43,13 @@ namespace MVC5Course.Controllers
             //var datapk = Product.ProductId;
 
             //var data = db.Product.Where(s => s.ProductId == datapk).ToList();
-            var data = db.Product.OrderByDescending(s => s.ProductId).ToList();
+            var data = db.Product.OrderByDescending(s => s.ProductId).Take(5).ToList();
+
+            foreach (var item in data)
+            {
+                item.Price = item.Price + 1;
+            }
+            db.SaveChanges();
             return View(data);
         }
 
@@ -58,6 +62,23 @@ namespace MVC5Course.Controllers
                 return HttpNotFound();
             }
             return View(Data);
+        }
+
+        public ActionResult Delete(int Id)
+        {
+            var Data = db.Product.Where(s => s.ProductId == Id).FirstOrDefault();
+
+            if (Data != null)
+            {
+                db.Product.Remove(Data);
+                db.SaveChanges();
+            }
+            else
+            {
+                return HttpNotFound();
+            }
+
+            return RedirectToAction("index");
         }
     }
 }
