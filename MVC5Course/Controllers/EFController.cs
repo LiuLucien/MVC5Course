@@ -10,19 +10,20 @@ namespace MVC5Course.Controllers
 {
     public class EFController : Controller
     {
+        FabricsEntities db = new FabricsEntities();
+
         // GET: EF
         public ActionResult Index()
         {
-
-            var db = new FabricsEntities();
-
-            db.Product.Add(new Product()
+            var Product = new Product()
             {
                 ProductName = "BMW",
-                Price = 1,
+                Price = 2,
                 Stock = 1,
                 Active = true
-            });
+            };
+
+            db.Product.Add(Product);
 
             try
             {
@@ -41,8 +42,22 @@ namespace MVC5Course.Controllers
                 }
                 throw;
             }
-            var data = db.Product.ToList();
+            //var datapk = Product.ProductId;
+
+            //var data = db.Product.Where(s => s.ProductId == datapk).ToList();
+            var data = db.Product.OrderByDescending(s => s.ProductId).ToList();
             return View(data);
+        }
+
+        public ActionResult Details(int Id)
+        {
+            var Data = db.Product.Where(s => s.ProductId == Id).FirstOrDefault();
+
+            if (Data == null)
+            {
+                return HttpNotFound();
+            }
+            return View(Data);
         }
     }
 }
