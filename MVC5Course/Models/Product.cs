@@ -23,7 +23,7 @@ namespace MVC5Course.Models
         public int ProductId { get; set; }
         [Required]
         public string ProductName { get; set; }
-        [Display(Name = "商品價錢"), Required, Range(2, 99, ErrorMessage = "{0}輸入錯誤")]
+        [Display(Name = "商品價錢"), Required, Range(2, 99, ErrorMessage = "{0}輸入錯誤,應介於{1}與{2}之間")]
         [DisplayFormat(DataFormatString = "{0:C}")]
         public Nullable<decimal> Price { get; set; }
         [Required]
